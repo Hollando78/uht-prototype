@@ -17,16 +17,6 @@
       font-size: 1.8rem;
       margin-bottom: 1rem;
     }
-    fieldset {
-      border: 1px solid #ccc;
-      padding: 1em;
-      margin-bottom: 1em;
-      border-radius: 5px;
-    }
-    legend {
-      font-weight: bold;
-      padding: 0 0.5em;
-    }
     .trait-checkbox {
       margin: 6px;
       display: inline-block;
@@ -60,43 +50,36 @@
 </head>
 <body>
   <h1>HexLens: UHT Trait Encoder</h1>
-  <p>Select the traits below to generate a Universal Hex Code (UHT fingerprint).</p>
+  <p>Select traits below to generate a 32-bit Universal Hex Code.</p>
 
-  <div id="trait-groups"></div>
-
+  <div id="traits-list"></div>
   <div class="bit-display" id="bit-display">00000000 00000000 00000000 00000000</div>
   <div class="hex-display" id="hex-output">Hex: 00 00 00 00</div>
 
   <footer>
-    Built with the <a href="https://www.universalhex.org" target="_blank">Universal Hex Taxonomy</a>
+    Built with the Universal Hex Taxonomy | v1.0 | <a href="https://universalhex.org" target="_blank">universalhex.org</a>
   </footer>
 
   <script>
-    const groupedTraits = {
-      "Physical": [
-        "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
-        "Structural", "Perceptible", "Material form", "Passive"
-      ],
-      "Functional": [
-        "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
-        "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical"
-      ],
-      "Abstract": [
-        "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
-        "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction"
-      ],
-      "Social": [
-        "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
-        "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
-      ]
-    };
+    const traits = [
+      // Physical (1–8)
+      "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
+      "Structural", "Perceptible", "Material form", "Passive",
+      // Functional (9–16)
+      "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
+      "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical",
+      // Abstract (17–24)
+      "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
+      "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction",
+      // Social (25–32)
+      "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
+      "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
+    ];
 
     const bitArray = Array(32).fill(0);
-    const traitGroupsDiv = document.getElementById("trait-groups");
+    const traitList = document.getElementById("traits-list");
     const bitDisplay = document.getElementById("bit-display");
     const hexOutput = document.getElementById("hex-output");
-
-    const checkboxElements = [];
 
     function updateDisplay() {
       const binary = bitArray.join("").match(/.{1,8}/g).join(" ");
@@ -106,33 +89,19 @@
       hexOutput.textContent = "Hex: " + hex;
     }
 
-    // Build grouped checkboxes
-    let bitIndex = 0;
-    for (const [group, traits] of Object.entries(groupedTraits)) {
-      const fieldset = document.createElement("fieldset");
-      const legend = document.createElement("legend");
-      legend.textContent = group;
-      fieldset.appendChild(legend);
-
-      traits.forEach(trait => {
-        const label = document.createElement("label");
-        label.className = "trait-checkbox";
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.dataset.index = bitIndex;
-        input.addEventListener("change", () => {
-          bitArray[bitIndex] = input.checked ? 1 : 0;
-          updateDisplay();
-        });
-        checkboxElements.push(input);
-        label.appendChild(input);
-        label.appendChild(document.createTextNode(trait));
-        fieldset.appendChild(label);
-        bitIndex++;
+    traits.forEach((trait, i) => {
+      const label = document.createElement("label");
+      label.className = "trait-checkbox";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.addEventListener("change", () => {
+        bitArray[i] = input.checked ? 1 : 0;
+        updateDisplay();
       });
-
-      traitGroupsDiv.appendChild(fieldset);
-    }
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(trait));
+      traitList.appendChild(label);
+    });
 
     updateDisplay();
   </script>

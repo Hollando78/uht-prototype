@@ -29,22 +29,6 @@ function generateMarkdown() {
   const md = `---
 layout: default
 title: <Component Title>
-hex: "${hex}"
-name: "<Component Name>"
-category: "Functional Component"
-tags:
-  - tag1
-  - tag2
-structure:
-  interface:
-    - "0x00000000"
-  flows:
-    - "0x00000000"
-definedBy: "https://github.com/uht-core/registry"
-version: "1.0"
-related:
-  - "0x________"
----
 
 # UHT Code ${hex}
 
@@ -52,10 +36,6 @@ related:
 **Category:** Functional Component  
 
 **Tags:** tag1, tag2  
-
-**Interfaces:** 0x00000000  
-
-**Flows:** 0x00000000  
 
 **Defined By:** [uht-core/registry](https://github.com/uht-core/registry)  
 
