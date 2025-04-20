@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HexLens - UHT Trait Encoder/Decoder</title>
+  <title>HexLens - UHT Trait Encoder</title>
   <style>
     body {
       font-family: sans-serif;
@@ -15,11 +15,7 @@
     }
     h1 {
       font-size: 1.8rem;
-    }
-    h2 {
-      margin-top: 2rem;
-      font-size: 1.4rem;
-      color: #444;
+      margin-bottom: 1rem;
     }
     fieldset {
       border: 1px solid #ccc;
@@ -55,12 +51,6 @@
       font-weight: bold;
       margin-top: 0.5rem;
     }
-    #decoder-input {
-      width: 200px;
-      font-family: monospace;
-      padding: 5px;
-      margin-top: 0.5em;
-    }
     footer {
       margin-top: 2rem;
       font-size: 0.9rem;
@@ -69,12 +59,8 @@
   </style>
 </head>
 <body>
-  <h1>HexLens: UHT Trait Encoder + Decoder</h1>
-  <p>Toggle traits below or paste a 32-bit hex code to inspect its semantic structure.</p>
-
-  <h2>Decode Hex Code</h2>
-  <input type="text" id="decoder-input" placeholder="Enter hex (e.g. 8E440203)" maxlength="8"/>
-  <button onclick="decodeHex()">Decode</button>
+  <h1>HexLens: UHT Trait Encoder</h1>
+  <p>Select the traits below to generate a Universal Hex Code (UHT fingerprint).</p>
 
   <div id="trait-groups"></div>
 
@@ -82,7 +68,7 @@
   <div class="hex-display" id="hex-output">Hex: 00 00 00 00</div>
 
   <footer>
-    Powered by the <a href="https://www.universalhex.org" target="_blank">Universal Hex Taxonomy</a>
+    Built with the <a href="https://www.universalhex.org" target="_blank">Universal Hex Taxonomy</a>
   </footer>
 
   <script>
@@ -118,20 +104,6 @@
         .map(b => parseInt(b, 2).toString(16).padStart(2, "0").toUpperCase()).join(" ");
       bitDisplay.textContent = binary;
       hexOutput.textContent = "Hex: " + hex;
-    }
-
-    function decodeHex() {
-      const input = document.getElementById("decoder-input").value.trim().toUpperCase();
-      if (!/^[0-9A-F]{8}$/.test(input)) {
-        alert("Please enter a valid 8-digit hexadecimal string.");
-        return;
-      }
-      const bin = [...input].map(h => parseInt(h, 16).toString(2).padStart(4, '0')).join("");
-      for (let i = 0; i < 32; i++) {
-        bitArray[i] = parseInt(bin[i]);
-        checkboxElements[i].checked = bitArray[i] === 1;
-      }
-      updateDisplay();
     }
 
     // Build grouped checkboxes
