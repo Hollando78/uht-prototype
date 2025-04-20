@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HexLens - UHT Trait Encoder</title>
+  <title>HexLens - UHT Trait Encoder/Decoder</title>
   <style>
     body {
       font-family: sans-serif;
@@ -15,7 +15,21 @@
     }
     h1 {
       font-size: 1.8rem;
-      margin-bottom: 1rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      font-size: 1.4rem;
+      color: #444;
+    }
+    fieldset {
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 5px;
+    }
+    legend {
+      font-weight: bold;
+      padding: 0 0.5em;
     }
     .trait-checkbox {
       margin: 6px;
@@ -41,6 +55,12 @@
       font-weight: bold;
       margin-top: 0.5rem;
     }
+    #decoder-input {
+      width: 200px;
+      font-family: monospace;
+      padding: 5px;
+      margin-top: 0.5em;
+    }
     footer {
       margin-top: 2rem;
       font-size: 0.9rem;
@@ -49,37 +69,48 @@
   </style>
 </head>
 <body>
-  <h1>HexLens: UHT Trait Encoder</h1>
-  <p>Select traits below to generate a 32-bit Universal Hex Code.</p>
+  <h1>HexLens: UHT Trait Encoder + Decoder</h1>
+  <p>Toggle traits below or paste a 32-bit hex code to inspect its semantic structure.</p>
 
-  <div id="traits-list"></div>
+  <h2>Decode Hex Code</h2>
+  <input type="text" id="decoder-input" placeholder="Enter hex (e.g. 8E440203)" maxlength="8"/>
+  <button onclick="decodeHex()">Decode</button>
+
+  <div id="trait-groups"></div>
+
   <div class="bit-display" id="bit-display">00000000 00000000 00000000 00000000</div>
   <div class="hex-display" id="hex-output">Hex: 00 00 00 00</div>
 
   <footer>
-    Built with the Universal Hex Taxonomy | v1.0 | <a href="https://universalhex.org" target="_blank">universalhex.org</a>
+    Powered by the <a href="https://www.universalhex.org" target="_blank">Universal Hex Taxonomy</a>
   </footer>
 
   <script>
-    const traits = [
-      // Physical (1–8)
-      "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
-      "Structural", "Perceptible", "Material form", "Passive",
-      // Functional (9–16)
-      "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
-      "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical",
-      // Abstract (17–24)
-      "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
-      "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction",
-      // Social (25–32)
-      "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
-      "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
-    ];
+    const groupedTraits = {
+      "Physical": [
+        "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
+        "Structural", "Perceptible", "Material form", "Passive"
+      ],
+      "Functional": [
+        "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
+        "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical"
+      ],
+      "Abstract": [
+        "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
+        "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction"
+      ],
+      "Social": [
+        "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
+        "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
+      ]
+    };
 
     const bitArray = Array(32).fill(0);
-    const traitList = document.getElementById("traits-list");
+    const traitGroupsDiv = document.getElementById("trait-groups");
     const bitDisplay = document.getElementById("bit-display");
     const hexOutput = document.getElementById("hex-output");
+
+    const checkboxElements = [];
 
     function updateDisplay() {
       const binary = bitArray.join("").match(/.{1,8}/g).join(" ");
@@ -89,19 +120,47 @@
       hexOutput.textContent = "Hex: " + hex;
     }
 
-    traits.forEach((trait, i) => {
-      const label = document.createElement("label");
-      label.className = "trait-checkbox";
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.addEventListener("change", () => {
-        bitArray[i] = input.checked ? 1 : 0;
-        updateDisplay();
+    function decodeHex() {
+      const input = document.getElementById("decoder-input").value.trim().toUpperCase();
+      if (!/^[0-9A-F]{8}$/.test(input)) {
+        alert("Please enter a valid 8-digit hexadecimal string.");
+        return;
+      }
+      const bin = [...input].map(h => parseInt(h, 16).toString(2).padStart(4, '0')).join("");
+      for (let i = 0; i < 32; i++) {
+        bitArray[i] = parseInt(bin[i]);
+        checkboxElements[i].checked = bitArray[i] === 1;
+      }
+      updateDisplay();
+    }
+
+    // Build grouped checkboxes
+    let bitIndex = 0;
+    for (const [group, traits] of Object.entries(groupedTraits)) {
+      const fieldset = document.createElement("fieldset");
+      const legend = document.createElement("legend");
+      legend.textContent = group;
+      fieldset.appendChild(legend);
+
+      traits.forEach(trait => {
+        const label = document.createElement("label");
+        label.className = "trait-checkbox";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.dataset.index = bitIndex;
+        input.addEventListener("change", () => {
+          bitArray[bitIndex] = input.checked ? 1 : 0;
+          updateDisplay();
+        });
+        checkboxElements.push(input);
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(trait));
+        fieldset.appendChild(label);
+        bitIndex++;
       });
-      label.appendChild(input);
-      label.appendChild(document.createTextNode(trait));
-      traitList.appendChild(label);
-    });
+
+      traitGroupsDiv.appendChild(fieldset);
+    }
 
     updateDisplay();
   </script>
