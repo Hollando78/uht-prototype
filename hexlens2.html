@@ -22,6 +22,19 @@
       text-align: center;
       margin-bottom: 2rem;
     }
+    details {
+      margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    summary {
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+    }
     .traits-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -75,7 +88,7 @@
     <p>Each toggle updates the 32-bit code and corresponding hex output.</p>
   </div>
 
-  <div class="traits-grid" id="traits-list"></div>
+  <div id="traits-container"></div>
 
   <div class="output">
     <div class="bit-display" id="bit-display">00000000 00000000 00000000 00000000</div>
@@ -87,23 +100,27 @@
   </footer>
 
   <script>
-    const traits = [
-      // Physical (1–8)
-      "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
-      "Structural", "Perceptible", "Material form", "Passive",
-      // Functional (9–16)
-      "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
-      "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical",
-      // Abstract (17–24)
-      "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
-      "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction",
-      // Social (25–32)
-      "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
-      "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
-    ];
+    const traitGroups = {
+      "Physical Layer (1–8)": [
+        "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
+        "Structural", "Perceptible", "Material form", "Passive"
+      ],
+      "Functional Layer (9–16)": [
+        "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
+        "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical"
+      ],
+      "Abstract Layer (17–24)": [
+        "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
+        "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction"
+      ],
+      "Social Layer (25–32)": [
+        "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
+        "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
+      ]
+    };
 
     const bitArray = Array(32).fill(0);
-    const traitList = document.getElementById("traits-list");
+    const traitContainer = document.getElementById("traits-container");
     const bitDisplay = document.getElementById("bit-display");
     const hexOutput = document.getElementById("hex-output");
 
@@ -115,21 +132,38 @@
       hexOutput.textContent = "Hex: " + hex;
     }
 
-    traits.forEach((trait, i) => {
-      const label = document.createElement("label");
-      label.className = "trait-checkbox";
+    let globalIndex = 0;
+    for (const [groupName, traits] of Object.entries(traitGroups)) {
+      const details = document.createElement("details");
+      details.open = true;
+      const summary = document.createElement("summary");
+      summary.textContent = groupName;
+      details.appendChild(summary);
 
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.addEventListener("change", () => {
-        bitArray[i] = input.checked ? 1 : 0;
-        updateDisplay();
+      const grid = document.createElement("div");
+      grid.className = "traits-grid";
+
+      traits.forEach((trait) => {
+        const label = document.createElement("label");
+        label.className = "trait-checkbox";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        const index = globalIndex;
+        input.addEventListener("change", () => {
+          bitArray[index] = input.checked ? 1 : 0;
+          updateDisplay();
+        });
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(trait));
+        grid.appendChild(label);
+        globalIndex++;
       });
 
-      label.appendChild(input);
-      label.appendChild(document.createTextNode(trait));
-      traitList.appendChild(label);
-    });
+      details.appendChild(grid);
+      traitContainer.appendChild(details);
+    }
 
     updateDisplay();
   </script>
