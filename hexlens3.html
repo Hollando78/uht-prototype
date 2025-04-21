@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HexLens v0.3 - UHT Trait Encoder</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      padding: 2rem;
+      max-width: 960px;
+      margin: auto;
+      background: #f0f4f8;
+      color: #222;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .intro {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    details {
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .physical {
+      background: #ffe5e5;
+    }
+    .functional {
+      background: #e5ecff;
+    }
+    .abstract {
+      background: #e5ffe5;
+    }
+    .social {
+      background: #fffce5;
+    }
+    summary {
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+    }
+    .traits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.5rem;
+    }
+    .trait-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    .trait-checkbox:hover {
+      background-color: #eef6ff;
+      border-color: #66aaff;
+    }
+    .trait-checkbox input {
+      margin-right: 0.75rem;
+    }
+    .output {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .bit-display, .hex-display {
+      font-family: monospace;
+      background: #fff;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    a {
+      color: #3366cc;
+    }
+  </style>
+</head>
+<body>
+  <h1>HexLens v2</h1>
+  <div class="intro">
+    <p>Select UHT traits below to generate a semantic fingerprint.</p>
+    <p>Each toggle updates the 32-bit code and corresponding hex output.</p>
+  </div>
+
+  <div id="traits-container"></div>
+
+  <div class="output">
+    <div class="bit-display" id="bit-display">00000000 00000000 00000000 00000000</div>
+    <div class="hex-display" id="hex-output">Hex: 00 00 00 00</div>
+  </div>
+
+  <footer>
+    Built with the <strong>Universal Hex Taxonomy</strong> | <a href="https://universalhex.org" target="_blank">universalhex.org</a>
+  </footer>
+
+  <script>
+    const traitGroups = {
+      "Physical Layer (1–8)": [
+        "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
+        "Structural", "Perceptible", "Material form", "Passive"
+      ],
+      "Functional Layer (9–16)": [
+        "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
+        "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical"
+      ],
+      "Abstract Layer (17–24)": [
+        "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
+        "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction"
+      ],
+      "Social Layer (25–32)": [
+        "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
+        "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
+      ]
+    };
+
+    const bitArray = Array(32).fill(0);
+    const traitContainer = document.getElementById("traits-container");
+    const bitDisplay = document.getElementById("bit-display");
+    const hexOutput = document.getElementById("hex-output");
+
+    function updateDisplay() {
+      const binary = bitArray.join("").match(/.{1,8}/g).join(" ");
+      const hex = bitArray.join("").match(/.{1,8}/g)
+        .map(b => parseInt(b, 2).toString(16).padStart(2, "0").toUpperCase()).join(" ");
+      bitDisplay.textContent = binary;
+      hexOutput.textContent = "Hex: " + hex;
+    }
+
+    let globalIndex = 0;
+    for (const [groupName, traits] of Object.entries(traitGroups)) {
+      const details = document.createElement("details");
+      details.open = true;
+      const summary = document.createElement("summary");
+      summary.textContent = groupName;
+      details.appendChild(summary);
+
+      const grid = document.createElement("div");
+      grid.className = "traits-grid";
+
+      let sectionClass = "";
+      if (groupName.startsWith("Physical")) sectionClass = "physical";
+      if (groupName.startsWith("Functional")) sectionClass = "functional";
+      if (groupName.startsWith("Abstract")) sectionClass = "abstract";
+      if (groupName.startsWith("Social")) sectionClass = "social";
+      details.classList.add(sectionClass);
+
+      traits.forEach((trait) => {
+        const label = document.createElement("label");
+        label.className = "trait-checkbox";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        const index = globalIndex;
+        input.addEventListener("change", () => {
+          bitArray[index] = input.checked ? 1 : 0;
+          updateDisplay();
+        });
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(trait));
+        grid.appendChild(label);
+        globalIndex++;
+      });
+
+      details.appendChild(grid);
+      traitContainer.appendChild(details);
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
