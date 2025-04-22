@@ -146,7 +146,7 @@
     let globalIndex = 0;
     for (const [groupName, traits] of Object.entries(traitGroups)) {
       const details = document.createElement("details");
-      details.open = true;
+      details.open = false;
       const summary = document.createElement("summary");
       summary.textContent = groupName;
       details.appendChild(summary);
