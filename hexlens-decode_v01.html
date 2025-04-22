@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HexLens Decoder - UHT</title>
+  <script>
+    const traits = [
+      "Physical object", "Man-made / synthetic", "Biological or biologically-inspired", "Fixed/static",
+      "Structural", "Perceptible", "Material form", "Passive",
+      "Purposeful / intentional", "Emits output / produces effect", "Processes or regulates logic/signals", "Transforms or modifies internal state",
+      "Interacts with humans directly", "Part of a larger system", "Autonomous in function", "System-critical",
+      "Symbolic / representational", "Communicative", "Logical / rule-based", "Hierarchical / modular",
+      "Behavior-guiding", "Self-referential / meta-conceptual", "Temporal", "Contextual abstraction",
+      "Socially / culturally constructed", "Defined by a group/system", "Linked to identity or role", "Regulated / governed",
+      "Teachable / transmissible", "Visible", "Context-sensitive", "Widely known"
+    ];
+
+    function decodeHex(hex) {
+      let output = "";
+      let bits = parseInt(hex.replace(/\s+/g, '').replace(/^0x/, ''), 16).toString(2).padStart(32, '0');
+      const layers = ["Physical", "Functional", "Abstract", "Social"];
+      output += `<p><strong>Binary:</strong> ${bits.replace(/(.{8})/g, '$1 ').trim()}</p>`;
+
+      for (let i = 0; i < 4; i++) {
+        output += `<h3>${layers[i]} Layer</h3><ul>`;
+        for (let j = 0; j < 8; j++) {
+          const idx = i * 8 + j;
+          if (bits[idx] === "1") {
+            output += `<li>✓ ${traits[idx]}</li>`;
+          }
+        }
+        output += "</ul>";
+      }
+      document.getElementById("result").innerHTML = output;
+    }
+  </script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; max-width: 700px; margin: auto; }
+    h1 { font-size: 1.8em; }
+    h3 { margin-top: 1em; color: #3b82f6; }
+    input[type=text] { width: 250px; padding: 0.4em; font-size: 1em; }
+    button { padding: 0.4em 0.8em; margin-left: 0.5em; }
+    ul { list-style: none; padding-left: 1em; }
+    li::before { content: '🟢 '; }
+  </style>
+</head>
+<body>
+  <h1>HexLens Decoder <small>(UHT 32-bit)</small></h1>
+  <p>Enter a 32-bit hex code (e.g., <code>46E1A451</code>) to decode:</p>
+  <input type="text" id="hexInput" placeholder="e.g. 46E1A451" />
+  <button onclick="decodeHex(document.getElementById('hexInput').value)">Decode</button>
+  <div id="result" style="margin-top: 2em;"></div>
+</body>
+</html>
