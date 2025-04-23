@@ -19,10 +19,12 @@
       let output = "";
       let bits = parseInt(hex.replace(/\s+/g, '').replace(/^0x/, ''), 16).toString(2).padStart(32, '0');
       const layers = ["Physical", "Functional", "Abstract", "Social"];
+      const layerColors = ["physical", "functional", "abstract", "social"];
+
       output += `<p class="binary"><strong>Binary:</strong> ${bits.replace(/(.{8})/g, '$1 ').trim()}</p>`;
 
       for (let i = 0; i < 4; i++) {
-        output += `<div class="layer"><h3>${layers[i]} Layer</h3><ul>`;
+        output += `<div class="layer ${layerColors[i]}"><h3>${layers[i]} Layer</h3><ul>`;
         for (let j = 0; j < 8; j++) {
           const idx = i * 8 + j;
           if (bits[idx] === "1") {
@@ -42,7 +44,6 @@
       padding: 2em;
       max-width: 750px;
       margin: auto;
-      border-radius: 12px;
     }
 
     h1 {
@@ -52,8 +53,7 @@
     }
 
     h3 {
-      margin-top: 1.2em;
-      color: #2563eb;
+      margin-top: 0;
     }
 
     input[type=text] {
@@ -97,11 +97,27 @@
 
     .layer {
       background: #ffffff;
-      border: 1px solid #e3e3e3;
+      border: 2px solid transparent;
       border-radius: 8px;
       padding: 0.8em 1em;
-      margin-bottom: 1em;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      margin-bottom: 1.2em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .physical {
+      border-left: 8px solid #ef4444; /* red */
+    }
+
+    .functional {
+      border-left: 8px solid #3b82f6; /* blue */
+    }
+
+    .abstract {
+      border-left: 8px solid #10b981; /* green */
+    }
+
+    .social {
+      border-left: 8px solid #facc15; /* yellow */
     }
   </style>
 </head>
